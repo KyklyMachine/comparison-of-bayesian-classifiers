@@ -9,7 +9,6 @@ import copy
 X_Y_DIMENSION_ERROR = "x.shape[0] != y.shape[0]! x and y must has the same first dimension."
 
 
-# Nonparametric Bayes
 class BayesianNonparametricalModel:
     _kernel_class: KernelDensity
     _kernel_params: dict
@@ -58,6 +57,10 @@ class BayesianNonparametricalModel:
         return self._classes[indexes_max_elements]
     
     @property
+    def n_classes(self):
+        return len(self._classes)
+    
+    @property
     def classes(self):
         return copy.copy(self._classes)
     
@@ -68,6 +71,10 @@ class BayesianNonparametricalModel:
     @property
     def kernel_params(self):
         return copy.copy(self._kernel_params)
+    
+    @property
+    def n_features(self):
+        return self._kernel_instances[self._classes[0]].n_features_in_
 
 
 if __name__ == "__main__":
@@ -85,3 +92,4 @@ if __name__ == "__main__":
     bnm.fit(X_train, y_train)
     pred = bnm.predict(X_test)
     print(accuracy_score(y_test, pred))
+    print(bnm.n_features)
