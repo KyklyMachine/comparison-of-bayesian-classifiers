@@ -10,11 +10,11 @@ X_Y_DIMENSION_ERROR = "x.shape[0] != y.shape[0]! x and y must has the same first
 
 
 class BayesianNonparametricalModel:
-    _kernel_class: KernelDensity
+    _kernel_class: type[KernelDensity]
     _kernel_params: dict
-    _kernel_instances: dict[str: KernelDensity]
-    _klass_probabilities: np.array
-    _classes: np.array
+    _kernel_instances: dict[str, KernelDensity]
+    _klass_probabilities: dict
+    _classes: np.ndarray
 
 
     def __init__(self, kernel_params: dict) -> None:
@@ -22,7 +22,7 @@ class BayesianNonparametricalModel:
         self._kernel_params = kernel_params
         self._kernel_instances = {}
 
-    def fit(self, x: np.array, y: np.array) -> None:
+    def fit(self, x: np.ndarray, y: np.ndarray) -> None:
         if x.shape[0] != y.shape[0]:
             raise ValueError(X_Y_DIMENSION_ERROR)
         
@@ -38,7 +38,7 @@ class BayesianNonparametricalModel:
             kernel_k.fit(x_k)
             self._kernel_instances[klass] = kernel_k
             
-    def predict_proba(self, x: np.array) -> np.array:
+    def predict_proba(self, x: np.ndarray) -> np.ndarray:
         probs_arr = []
         for klass in self._classes:
             f_xk = np.exp(self._kernel_instances[klass].score_samples(x))
@@ -51,7 +51,7 @@ class BayesianNonparametricalModel:
         probs = probs_arr / norm_values[:, None]
         return probs
 
-    def predict(self, x: np.array) -> np.array:
+    def predict(self, x: np.ndarray) -> np.ndarray:
         probs = self.predict_proba(x)
         indexes_max_elements = probs.argmax(axis=1)
         return self._classes[indexes_max_elements]
